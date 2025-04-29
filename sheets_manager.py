@@ -38,7 +38,7 @@ class ExpenseSheetManager:
         try:
             # Authenticate and create the client
             creds = ServiceAccountCredentials.from_json_keyfile_dict(
-               json.load(creds_json), scope)
+               keyfile_dict=creds_json, scopes=scope)
             self.client = gspread.authorize(creds)
             # Open the spreadsheet
             self.spreadsheet = self.client.open_by_key(self.sheet_id)
