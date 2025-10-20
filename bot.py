@@ -33,6 +33,9 @@ async def on_ready():
     
     # Initialize Google Sheets manager
     try:
+        user_id= os.environ.get("DISCORD_USER_ID")
+        user = await bot.fetch_user(user_id)
+        await user.send("Welcome, track you expenses")
         sheets_manager = ExpenseSheetManager()
         logger.info("Google Sheets manager initialized successfully")
     except Exception as e:
@@ -40,27 +43,19 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-    """Event triggered when the bot receives a message."""
-    # Ignore messages from the bot itself
     if message.author == bot.user:
         return
-    
-    # Only process direct messages
     if not isinstance(message.channel, discord.DMChannel):
         return
-    
-    # Process commands first
     await bot.process_commands(message)
     
-    # If not a command, try to parse as an expense
     if not message.content.startswith(bot.command_prefix):
         try:
             expense = parse_expense(message.content)
             if expense:
-                # Save expense to Google Sheets
                 if sheets_manager:
                     result = sheets_manager.add_expense(expense)
-                    await message.channel.send(f"✅ Expense saved: {expense['amount']} for {expense['category']} - {expense['description']}")
+                    await message.channel.send(f"✅ Expense Added: {expense['amount']} for {expense['category']} - {expense['description']}")
                 else:
                     await message.channel.send("❌ Google Sheets connection not established. Try again later.")
             else:
